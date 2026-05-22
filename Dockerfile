@@ -1,7 +1,7 @@
 # ===================================================================
 # STAGE 1: MAVEN BUILD ENVIRONMENT
 # ===================================================================
-FROM maven:3.8.5-openjdk-17 AS build
+FROM maven:3.9.6-eclipse-temurin-17 AS build
 WORKDIR /app
 
 # Copy pom.xml and source code
@@ -14,7 +14,7 @@ RUN mvn clean package -DskipTests
 # ===================================================================
 # STAGE 2: RUNTIME ENVIRONMENT
 # ===================================================================
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 
 # Copy the built jar file from the build stage
