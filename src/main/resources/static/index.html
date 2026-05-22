@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM & Cloud Network Control Center</title>
+    
+    <!-- Google Fonts: Inter & Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js for beautiful analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="dark-theme">
+    
+    <!-- Background Animated Gradients -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    <div class="bg-glow bg-glow-3"></div>
+
+    <!-- ===================================================================
+         LOGIN SECTION (Only visible when not authenticated)
+         =================================================================== */ -->
+    <section class="login-wrapper" id="login-section">
+        <div class="login-card glass-panel">
+            <div class="login-header text-center">
+                <div class="login-brand-icon">
+                    <i class="fa-solid fa-cloud-bolt"></i>
+                </div>
+                <h2>NextGen <span>CRM</span></h2>
+                <p>Bulutli boshqaruv tizimiga kirish</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-username"><i class="fa-solid fa-user"></i> Login</label>
+                    <input type="text" id="login-username" required placeholder="Foydalanuvchi nomi (admin, manager, ceo)">
+                </div>
+                <div class="form-group">
+                    <label for="login-password"><i class="fa-solid fa-lock"></i> Parol</label>
+                    <input type="password" id="login-password" required placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary btn-full" style="margin-top: 1.5rem;">
+                    <i class="fa-solid fa-right-to-bracket"></i> Tizimga Kirish
+                </button>
+            </form>
+            <div class="login-hints text-center" style="margin-top: 1.5rem; font-size: 0.75rem; color: var(--text-muted);">
+                <p>Sinov hisoblari: <strong>admin</strong> (123) | <strong>manager</strong> (123) | <strong>ceo</strong> (123)</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===================================================================
+         MAIN APPLICATION AREA (Only visible when authenticated)
+         =================================================================== */ -->
+    <div class="app-container" id="app-workspace" style="display: none;">
+        
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-cloud-bolt"></i>
+                </div>
+                <h2>NextGen <span>CRM</span></h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-tab="dashboard">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Dashboard</span>
+                    </li>
+                    <li class="nav-item" data-tab="customers">
+                        <i class="fa-solid fa-users-gear"></i>
+                        <span>Mijozlar</span>
+                    </li>
+                    <li class="nav-item" data-tab="network" id="nav-tab-network">
+                        <i class="fa-solid fa-network-wired"></i>
+                        <span>Tarmoq Monitori</span>
+                        <span class="badge badge-pulse">Live</span>
+                    </li>
+                    <li class="nav-item" data-tab="staff" id="nav-tab-staff">
+                        <i class="fa-solid fa-user-tie"></i>
+                        <span>Xodimlar</span>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile">
+                    <div class="avatar">
+                        <i class="fa-solid fa-user-shield" id="user-role-icon"></i>
+                    </div>
+                    <div class="user-info">
+                        <h4 id="user-display-name">Foydalanuvchi</h4>
+                        <p id="user-display-role">Rol</p>
+                    </div>
+                    <button class="btn-icon delete" id="btn-logout" title="Chiqish" style="margin-left: auto;">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            
+            <!-- HEADER -->
+            <header class="app-header">
+                <div class="header-title">
+                    <h1 id="page-title">Boshqaruv Paneli</h1>
+                    <p id="page-subtitle">Biznes tizimlari va bulut infratuzilmasi real-vaqt statistikasi</p>
+                </div>
+                <div class="header-actions">
+                    <div class="network-status-indicator CONNECTED" id="indicator-network">
+                        <span class="status-dot"></span>
+                        <span class="status-text">VPC: Active</span>
+                    </div>
+                    <div class="database-status-indicator CONNECTED">
+                        <i class="fa-solid fa-database"></i>
+                        <span>PostgreSQL: Connected</span>
+                    </div>
+                </div>
+            </header>
+
+            <!-- TAB 1: DASHBOARD -->
+            <section id="tab-dashboard" class="tab-content active">
+                
+                <!-- KPI CARDS -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-blue">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="kpi-data">
+                        <h3>Jami Mijozlar</h3>
+                        <h2 id="kpi-total-customers">0</h2>
+                        <p class="trend" id="kpi-growth-trend"><i class="fa-solid fa-minus"></i> Hisob qilinmoqda...</p>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-green">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div class="kpi-data">
+                        <h3>Faol Hamkorlar</h3>
+                        <h2 id="kpi-active-customers">0</h2>
+                        <p class="trend positive" id="kpi-active-ratio">0% ulush</p>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon icon-orange">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div class="kpi-data">
+                        <h3>Muzokaralar</h3>
+                        <h2 id="kpi-pending-customers">0</h2>
+                        <p class="trend">Mijozlar bilan bog'lanilmoqda</p>
+                    </div>
+                </div>
+                <div class="kpi-card" id="kpi-card-infra">
+                    <div class="kpi-icon icon-purple">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                    <div class="kpi-data">
+                        <h3>Bulut Infratuzilmasi</h3>
+                        <h2 id="kpi-active-nodes">1 Instance</h2>
+                        <p class="trend positive"><i class="fa-solid fa-shield-halved"></i> Auto-Scaling faol</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CEO/ADMIN EXTRA KPI ROW: Revenue & Orders -->
+            <div class="kpi-grid kpi-grid-ceo" id="kpi-row-ceo" style="margin-top: 0; display: none;">
+                <div class="kpi-card kpi-card-wide">
+                    <div class="kpi-icon icon-gold">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </div>
+                    <div class="kpi-data">
+                        <h3>Jami Daromad</h3>
+                        <h2 id="kpi-total-revenue">0 so'm</h2>
+                        <p class="trend positive"><i class="fa-solid fa-chart-line"></i> Faol shartnomalar</p>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-card-wide">
+                    <div class="kpi-icon icon-teal">
+                        <i class="fa-solid fa-boxes-stacked"></i>
+                    </div>
+                    <div class="kpi-data">
+                        <h3>Jami Buyurtmalar</h3>
+                        <h2 id="kpi-total-orders">0 ta</h2>
+                        <p class="trend positive"><i class="fa-solid fa-arrow-trend-up"></i> Yopilgan bitimlar</p>
+                    </div>
+                </div>
+                <div class="kpi-card kpi-card-wide">
+                    <div class="kpi-icon icon-green">
+                        <i class="fa-solid fa-user-plus"></i>
+                    </div>
+                    <div class="kpi-data">
+                        <h3>Bugun Yangi</h3>
+                        <h2 id="kpi-today-new">0 ta</h2>
+                        <p class="trend" id="kpi-today-trend">Bugun qo'shilgan mijozlar</p>
+                    </div>
+                </div>
+            </div>
+
+                <!-- CHARTS ROW -->
+                <div class="charts-row">
+                    <div class="chart-card glass-panel flex-2">
+                        <div class="card-header">
+                            <h3>Mijozlar Statusi bo'yicha Tahlil</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="crmStatsChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card glass-panel flex-1" id="dashboard-cpu-card">
+                        <div class="card-header">
+                            <h3>Real-time Bulut CPU (%)</h3>
+                            <span class="badge badge-danger" id="cpu-badge">12% CPU</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="realtimeCpuChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CEO ADVANCED ANALYTICS (Only visible to CEO / SuperAdmin, nice tables & indicators) -->
+                <div class="charts-row">
+                    <!-- Staff Performance Table -->
+                    <div class="chart-card glass-panel flex-1">
+                        <div class="card-header">
+                            <h3>Xodimlar Unumdorligi (Muloqotlar soni)</h3>
+                            <i class="fa-solid fa-ranking-star text-success" style="font-size: 1.2rem;"></i>
+                        </div>
+                        <div class="table-container" style="max-height: 250px; overflow-y: auto;">
+                            <table class="custom-table" style="font-size: 0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Xodim</th>
+                                        <th>Qilingan suhbatlar / ishlar</th>
+                                        <th>Biriktirilgan mijozlar</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ceo-performance-body">
+                                    <!-- Dynamic API rendering -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Recent interactions (Kunlik faoliyat logi) -->
+                    <div class="chart-card glass-panel flex-1 log-card">
+                        <div class="card-header">
+                            <h3>Oxirgi Muloqotlar (Kunlik ishlar tarixi)</h3>
+                            <span class="badge badge-success">Audit Log</span>
+                        </div>
+                        <div class="log-container" id="dashboard-audit-logs" style="font-size: 0.75rem;">
+                            <!-- Dynamic log output -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- QUICK ACTIONS -->
+                <div class="quick-actions glass-panel">
+                    <h3>Tezkor Amallar</h3>
+                    <div class="actions-grid">
+                        <button class="action-btn" id="btn-quick-add">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span>Yangi Mijoz</span>
+                        </button>
+                        <button class="action-btn" id="btn-goto-network">
+                            <i class="fa-solid fa-network-wired"></i>
+                            <span>Tarmoqni Sinash</span>
+                        </button>
+                        <button class="action-btn" id="btn-export-data">
+                            <i class="fa-solid fa-file-export"></i>
+                            <span>Hisobotlarni Yuklash (CSV)</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: CUSTOMERS MANAGER -->
+            <section id="tab-customers" class="tab-content">
+                
+                <div class="customers-header glass-panel">
+                    <div class="search-bar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="customer-search-input" placeholder="Ism yoki kompaniya bo'yicha qidirish...">
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-customer">
+                        <i class="fa-solid fa-plus"></i> Yangi Mijoz Qo'shish
+                    </button>
+                </div>
+
+                <!-- CUSTOMERS TABLE -->
+                <div class="table-container glass-panel">
+                    <table class="custom-table" id="customers-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>F.I.Sh</th>
+                                <th>Kompaniya</th>
+                                <th>Email</th>
+                                <th>Telefon</th>
+                                <th>Status</th>
+                                <th>Mas'ul xodim</th>
+                                <th>Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customers-list-body">
+                            <!-- Java API dynamic ma'lumotlar -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TAB 3: NETWORK SIMULATOR (Faqat SUPER_ADMIN ko'radi) -->
+            <section id="tab-network" class="tab-content">
+                
+                <div class="network-grid">
+                    
+                    <!-- TOPOLOGY GRAPHIC (SVG ANIMATED) -->
+                    <div class="topology-card glass-panel flex-3">
+                        <div class="card-header">
+                            <h3>AWS VPC Bulut Tarmoq Topologiyasi (Dizayn)</h3>
+                            <span class="badge badge-success">VPC CIDR: 10.0.0.0/16</span>
+                        </div>
+                        
+                        <div class="topology-visualizer">
+                            <svg viewBox="0 0 800 450" width="100%" height="100%" class="topology-svg">
+                                <defs>
+                                    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#0052D4" />
+                                        <stop offset="100%" stop-color="#4364F7" />
+                                    </linearGradient>
+                                    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#11998e" />
+                                        <stop offset="100%" stop-color="#38ef7d" />
+                                    </linearGradient>
+                                    <linearGradient id="purpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#8a2be2" />
+                                        <stop offset="100%" stop-color="#da70d6" />
+                                    </linearGradient>
+                                    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                                        <path d="M 0 0 L 10 5 L 0 10 z" fill="#4364F7" />
+                                    </marker>
+                                </defs>
+
+                                <!-- VPC BORDER -->
+                                <rect x="180" y="30" width="580" height="390" rx="15" fill="none" stroke="#4364F7" stroke-dasharray="10 5" stroke-width="2" />
+                                <text x="195" y="55" fill="#4364F7" font-weight="700" font-size="14">AWS Virtual Private Cloud (VPC)</text>
+
+                                <!-- PUBLIC SUBNET -->
+                                <rect x="210" y="80" width="220" height="310" rx="10" fill="rgba(0, 82, 212, 0.05)" stroke="#00c6ff" stroke-width="1.5" />
+                                <text x="220" y="105" fill="#00c6ff" font-weight="600" font-size="11">Public Subnet (10.0.1.0/24)</text>
+
+                                <!-- PRIVATE SUBNET -->
+                                <rect x="470" y="80" width="260" height="310" rx="10" fill="rgba(138, 43, 226, 0.05)" stroke="#8a2be2" stroke-width="1.5" />
+                                <text x="480" y="105" fill="#8a2be2" font-weight="600" font-size="11">Secure Private Subnet (10.0.2.0/24)</text>
+
+                                <!-- EXTERNAL CLIENTS -->
+                                <g transform="translate(40, 200)" class="svg-node" id="node-users">
+                                    <circle cx="30" cy="30" r="28" fill="url(#blueGrad)" class="glow-effect" />
+                                    <text x="30" y="35" fill="white" font-size="18" text-anchor="middle"><i class="fa-solid fa-users"></i></text>
+                                    <text x="30" y="75" fill="#e0e0e0" font-size="12" font-weight="bold" text-anchor="middle">Mijozlar</text>
+                                    <text x="30" y="90" fill="#a0a0a0" font-size="9" text-anchor="middle">Internet / VPN</text>
+                                </g>
+
+                                <!-- INTERNET GATEWAY -->
+                                <g transform="translate(195, 200)" class="svg-node" id="node-igw">
+                                    <circle cx="20" cy="20" r="18" fill="#ff7f50" />
+                                    <text x="20" y="24" fill="white" font-size="12" text-anchor="middle">IGW</text>
+                                    <text x="20" y="50" fill="#ff7f50" font-size="9" font-weight="bold" text-anchor="middle">Internet Gateway</text>
+                                </g>
+
+                                <!-- LOAD BALANCER -->
+                                <g transform="translate(290, 190)" class="svg-node" id="node-elb">
+                                    <rect x="0" y="0" width="60" height="60" rx="30" fill="url(#greenGrad)" />
+                                    <circle cx="30" cy="20" r="6" fill="white" />
+                                    <circle cx="18" cy="40" r="5" fill="white" />
+                                    <circle cx="42" cy="40" r="5" fill="white" />
+                                    <path d="M 30 26 L 18 35 M 30 26 L 42 35" stroke="white" stroke-width="2" />
+                                    <text x="30" y="80" fill="#38ef7d" font-size="11" font-weight="bold" text-anchor="middle">Load Balancer</text>
+                                </g>
+
+                                <!-- INSTANCES -->
+                                <g transform="translate(490, 110)" class="svg-node server-node active" id="svg-srv-1">
+                                    <rect x="0" y="0" width="90" height="45" rx="5" fill="#2d3748" stroke="#38ef7d" stroke-width="2" />
+                                    <text x="45" y="27" fill="white" font-size="10" text-anchor="middle" font-weight="bold">CRM-Instance-1</text>
+                                    <circle cx="15" cy="15" r="4" fill="#38ef7d" class="pulse-dot" />
+                                </g>
+                                <g transform="translate(490, 175)" class="svg-node server-node inactive" id="svg-srv-2">
+                                    <rect x="0" y="0" width="90" height="45" rx="5" fill="#2d3748" stroke="#a0aec0" stroke-width="1.5" />
+                                    <text x="45" y="27" fill="#718096" font-size="10" text-anchor="middle">CRM-Instance-2</text>
+                                    <circle cx="15" cy="15" r="4" fill="#a0aec0" />
+                                </g>
+                                <g transform="translate(490, 240)" class="svg-node server-node inactive" id="svg-srv-3">
+                                    <rect x="0" y="0" width="90" height="45" rx="5" fill="#2d3748" stroke="#a0aec0" stroke-width="1.5" />
+                                    <text x="45" y="27" fill="#718096" font-size="10" text-anchor="middle">CRM-Instance-3</text>
+                                    <circle cx="15" cy="15" r="4" fill="#a0aec0" />
+                                </g>
+                                
+                                <!-- DATABASE (PostgreSQL) -->
+                                <g transform="translate(635, 180)" class="svg-node" id="node-db">
+                                    <path d="M 0 15 C 0 5, 60 5, 60 15 L 60 45 C 60 55, 0 55, 0 45 Z" fill="url(#purpleGrad)" />
+                                    <path d="M 0 15 C 0 25, 60 25, 60 15" fill="none" stroke="#1a0033" stroke-width="2" />
+                                    <path d="M 0 30 C 0 40, 60 40, 60 30" fill="none" stroke="#1a0033" stroke-width="2" />
+                                    <text x="30" y="35" fill="white" font-size="10" font-weight="bold" text-anchor="middle">PostgreSQL</text>
+                                    <text x="30" y="70" fill="#da70d6" font-size="11" font-weight="bold" text-anchor="middle">Secure DB</text>
+                                </g>
+
+                                <!-- HEAD OFFICE VPN -->
+                                <g transform="translate(635, 330)" class="svg-node" id="node-vpn">
+                                    <rect x="0" y="0" width="60" height="45" rx="5" fill="#1a365d" stroke="#00c6ff" stroke-width="1.5" />
+                                    <text x="30" y="26" fill="white" font-size="18" text-anchor="middle"><i class="fa-solid fa-building-shield"></i></text>
+                                    <text x="30" y="60" fill="#00c6ff" font-size="10" font-weight="bold" text-anchor="middle">Bosh Ofis (VPN)</text>
+                                </g>
+
+                                <!-- PATHS -->
+                                <path d="M 98 215 L 195 215" fill="none" stroke="#4364F7" stroke-width="2" id="path-users-igw" />
+                                <circle cx="98" cy="215" r="3" fill="#ff007f" id="flow-user-igw">
+                                    <animateMotion dur="2s" repeatCount="indefinite" path="M 0 0 L 97 0" />
+                                </circle>
+
+                                <path d="M 233 215 L 290 215" fill="none" stroke="#4364F7" stroke-width="2" />
+                                
+                                <path d="M 350 210 L 410 210 L 410 132 L 490 132" fill="none" stroke="#38ef7d" stroke-width="1.5" id="path-elb-srv1" />
+                                <circle cx="350" cy="210" r="3" fill="#38ef7d" id="flow-elb-srv1">
+                                    <animateMotion dur="2.5s" repeatCount="indefinite" path="M 0 0 L 60 0 L 60 -78 L 140 -78" />
+                                </circle>
+                                
+                                <path d="M 350 220 L 490 220" fill="none" stroke="#a0aec0" stroke-width="1" id="path-elb-srv2" stroke-dasharray="3 3" />
+                                <path d="M 350 230 L 410 230 L 410 262 L 490 262" fill="none" stroke="#a0aec0" stroke-width="1" id="path-elb-srv3" stroke-dasharray="3 3" />
+
+                                <path d="M 580 132 L 605 132 L 605 200 L 635 200" fill="none" stroke="#8a2be2" stroke-width="1.5" />
+                                <path d="M 580 197 L 635 197" fill="none" stroke="#a0aec0" stroke-width="1" />
+                                <path d="M 580 262 L 605 262 L 605 210 L 635 210" fill="none" stroke="#a0aec0" stroke-width="1" />
+
+                                <path d="M 665 235 L 665 330" fill="none" stroke="#00c6ff" stroke-width="2" stroke-dasharray="5 5" id="path-vpn" />
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- CONTROL PANEL -->
+                    <div class="control-card glass-panel flex-1">
+                        <div class="card-header">
+                            <h3>Tarmoqni Sinash</h3>
+                            <i class="fa-solid fa-flask"></i>
+                        </div>
+                        
+                        <div class="simulator-controls">
+                            <div class="control-group">
+                                <label for="load-simulator-btn">Auto-scaling & Load Balancer Testi</label>
+                                <p class="control-desc">Tizimga parallel mijoz so'rovlarini yuborib yuklamani simulyatsiya qiling.</p>
+                                <button class="btn btn-success btn-full" id="btn-send-load">
+                                    <i class="fa-solid fa-bolt-lightning"></i> 300 so'rov yuborish (Load)
+                                </button>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Tarmoq Latency Testi (Ping)</label>
+                                <p class="control-desc">Mijoz va CRM serverlari orasidagi real kechikish vaqtini tekshirish.</p>
+                                <button class="btn btn-secondary btn-full" id="btn-ping-test">
+                                    <i class="fa-solid fa-gauge-high"></i> Ping Testini Boshlash
+                                </button>
+                            </div>
+
+                            <div class="control-group">
+                                <button class="btn btn-danger btn-full" id="btn-reset-sim">
+                                    <i class="fa-solid fa-rotate-left"></i> Simulyatsiyani Reset Qilish
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="metrics-mini">
+                            <div class="mini-metric-item">
+                                <span class="label">O'rtacha kechikish</span>
+                                <span class="value" id="val-latency">15 ms</span>
+                            </div>
+                            <div class="mini-metric-item">
+                                <span class="label">So'rovlar tezligi</span>
+                                <span class="value" id="val-reqrate">0 req/sec</span>
+                            </div>
+                            <div class="mini-metric-item">
+                                <span class="label">VPN holati</span>
+                                <span class="value text-success" id="val-vpn">CONNECTED</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-row">
+                    <div class="chart-card glass-panel flex-1">
+                        <div class="card-header">
+                            <h3>Throughput va Latency Tahlili</h3>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="networkPerformanceChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="chart-card glass-panel flex-1 log-card">
+                        <div class="card-header">
+                            <h3>Tarmoq va Auto-scaling Tizim Loglari</h3>
+                            <button class="btn-clear-logs" id="btn-clear-logs-ui"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                        <div class="log-container" id="log-monitor-box"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: STAFF MANAGEMENT (Faqat SUPER_ADMIN va CEO ko'radi, MANAGERda yashiriladi) -->
+            <section id="tab-staff" class="tab-content">
+                
+                <div class="customers-header glass-panel" id="staff-header-actions">
+                    <div class="search-bar" style="border: none; background: none; width: auto;">
+                        <h3 style="font-family: var(--font-heading);"><i class="fa-solid fa-user-tie"></i> Kompaniya Xodimlari & Rollar</h3>
+                    </div>
+                    <button class="btn btn-primary" id="btn-add-staff">
+                        <i class="fa-solid fa-plus"></i> Yangi Xodim Qo'shish
+                    </button>
+                </div>
+
+                <div class="table-container glass-panel">
+                    <table class="custom-table" id="staff-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>F.I.Sh</th>
+                                <th>Username</th>
+                                <th>Roli (Huquqi)</th>
+                                <th>Qo'shilgan sana</th>
+                                <th>Amallar</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staff-list-body">
+                            <!-- Dynamic rendering -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- ===================================================================
+         MODALS DIALOGS
+         =================================================================== */ -->
+    
+    <!-- 1. ADD/EDIT CUSTOMER MODAL -->
+    <div class="modal-overlay" id="customer-modal">
+        <div class="modal-content glass-panel">
+            <div class="modal-header">
+                <h3 id="modal-title">Yangi Mijoz Qo'shish</h3>
+                <button class="close-modal-btn" id="btn-close-modal">&times;</button>
+            </div>
+            <form id="customer-form">
+                <input type="hidden" id="customer-id">
+                
+                <div class="form-group">
+                    <label for="cust-name">F.I.Sh <span class="required">*</span></label>
+                    <input type="text" id="cust-name" required placeholder="Masalan: Jamshid Karimov">
+                </div>
+                
+                <div class="form-group">
+                    <label for="cust-company">Kompaniya nomi</label>
+                    <input type="text" id="cust-company" placeholder="Masalan: Elegant Wear LLC">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="cust-email">Email manzili <span class="required">*</span></label>
+                        <input type="email" id="cust-email" required placeholder="name@company.com">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="cust-phone">Telefon raqami</label>
+                        <input type="text" id="cust-phone" placeholder="+998 (90) 123-45-67">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="cust-status">Kelishuv statusi <span class="required">*</span></label>
+                        <select id="cust-status" required>
+                            <option value="Lead">Yangi So'rov (Lead)</option>
+                            <option value="Contacted">Bog'lanildi (Contacted)</option>
+                            <option value="Proposal">Taklif Yuborildi (Proposal)</option>
+                            <option value="Active">Hamkor (Active)</option>
+                            <option value="Inactive">Faol Emas (Inactive)</option>
+                        </select>
+                    </div>
+                    <div class="form-group flex-1" id="field-assign-to">
+                        <label for="cust-assign">Mas'ul xodim biriktirish</label>
+                        <select id="cust-assign">
+                            <!-- Dynamic user lists from API -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cust-notes">Qo'shimcha izohlar</label>
+                    <textarea id="cust-notes" rows="3" placeholder="Mijoz haqida batafsil ma'lumot..."></textarea>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary" id="btn-save-customer">Saqlash</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. ADD STAFF MODAL (Faqat SUPER_ADMIN uchun) -->
+    <div class="modal-overlay" id="staff-modal">
+        <div class="modal-content glass-panel" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3>Yangi Xodim Qo'shish</h3>
+                <button class="close-modal-btn" id="btn-close-staff-modal">&times;</button>
+            </div>
+            <form id="staff-form">
+                <div class="form-group">
+                    <label for="staff-name">F.I.Sh <span class="required">*</span></label>
+                    <input type="text" id="staff-name" required placeholder="Masalan: Sardor Alimov">
+                </div>
+                <div class="form-group">
+                    <label for="staff-username">Username <span class="required">*</span></label>
+                    <input type="text" id="staff-username" required placeholder="Masalan: salimov">
+                </div>
+                <div class="form-group">
+                    <label for="staff-password">Parol <span class="required">*</span></label>
+                    <input type="password" id="staff-password" required placeholder="••••••••">
+                </div>
+                <div class="form-group">
+                    <label for="staff-role">Roli (Huquqi) <span class="required">*</span></label>
+                    <select id="staff-role" required>
+                        <option value="MANAGER">MANAGER (CRUD, Muloqot yozadi)</option>
+                        <option value="CEO">CEO (Faqat ko'radi, Analytics)</option>
+                        <option value="SUPER_ADMIN">SUPER_ADMIN (Barcha huquqlar, Network)</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="btn-cancel-staff-modal">Bekor qilish</button>
+                    <button type="submit" class="btn btn-primary">Qo'shish</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. INTERACTIONS TIMELINE MODAL (Qaysi xodim qachon nima haqida gaplashganligi) -->
+    <div class="modal-overlay" id="interactions-modal">
+        <div class="modal-content glass-panel" style="max-width: 650px;">
+            <div class="modal-header">
+                <div>
+                    <h3 id="inter-modal-title">Muloqotlar Tarixi</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;" id="inter-modal-subtitle">Mijoz suhbatlar auditi loglari</p>
+                </div>
+                <button class="close-modal-btn" id="btn-close-inter-modal">&times;</button>
+            </div>
+            
+            <!-- Timeline Body Container -->
+            <div class="timeline-container" id="interactions-timeline-box">
+                <!-- Dynamic loading of timeline events -->
+            </div>
+
+            <!-- New Interaction Add Box (Only visible for Manager and Admin, hidden for CEO) -->
+            <div class="new-interaction-box" id="new-interaction-section" style="border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1.5rem;">
+                <h4 style="font-family: var(--font-heading); margin-bottom: 0.75rem;"><i class="fa-solid fa-comment-medical text-secondary"></i> Yangi Muloqot Qo'shish</h4>
+                <form id="interaction-form">
+                    <input type="hidden" id="inter-customer-id">
+                    <div class="form-row">
+                        <div class="form-group flex-1">
+                            <label for="inter-type">Aloqa turi</label>
+                            <select id="inter-type" required>
+                                <option value="Telefon">📞 Telefon suhbati</option>
+                                <option value="Email">📧 Email yuborish</option>
+                                <option value="Uchrashuv">🤝 Yuzma-yuz uchrashuv</option>
+                                <option value="Taklif">📄 Shartnoma/Taklif yuborildi</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="inter-notes">Gaplashilgan narsalar / Izohlar</label>
+                        <textarea id="inter-notes" required rows="2" placeholder="Masalan: Yangi narxlar bo'yicha uchrashuv o'tkazildi, mijoz rozi bo'ldi."></textarea>
+                    </div>
+                    <div style="display: flex; justify-content: flex-end;">
+                        <button type="submit" class="btn btn-success"><i class="fa-solid fa-paper-plane"></i> Muloqotni Saqlash</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast-notification" class="toast">
+        <i class="fa-solid fa-circle-check"></i>
+        <span id="toast-message">Muvaffaqiyatli bajarildi!</span>
+    </div>
+
+    <!-- Dynamic JavaScript Load -->
+    <script src="/js/app.js"></script>
+    <script src="/js/network.js"></script>
+</body>
+</html>
