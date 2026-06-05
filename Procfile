@@ -1,1 +1,1 @@
-web: java -jar target/cloud-crm-portal-1.0.0.jar app.jar
+web: java -jar app.jar
